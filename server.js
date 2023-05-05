@@ -2,12 +2,18 @@ const express = require('express');
 const Alpaca = require('@alpacahq/alpaca-trade-api');
 const fs = require('fs');
 const app = express();
+require('dotenv').config();
+
 const port = 3000;
+
+// Access environment variables
+const apiKey = process.env.API_KEY;
+const secretKey = process.env.SECRET_KEY;
 
 // Replace YOUR_API_KEY and YOUR_API_SECRET with your actual Alpaca API key and secret.
 const alpaca = new Alpaca({
-  keyId: 'PKYQRHO6N8U326IYG43C',
-  secretKey: 'udnfp2SFgr3SWTBDnI8nX70bW4iv2w1C00vYAWCi',
+  keyId: apiKey,
+  secretKey: secretKey,
   paper: true,
   usePolygon: false
 });
