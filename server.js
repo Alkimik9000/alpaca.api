@@ -1,37 +1,34 @@
-const express = require('express');
 const Alpaca = require('@alpacahq/alpaca-trade-api');
+const express = require('express');
 const fs = require('fs');
-const app = express();
-require('dotenv').config();
 
+const app = express();
 const port = 3000;
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+});
 
 // Access environment variables
 const apiKey = process.env.API_KEY;
 const secretKey = process.env.SECRET_KEY;
 
-// Replace YOUR_API_KEY and YOUR_API_SECRET with your actual Alpaca API key and secret.
 const alpaca = new Alpaca({
-  keyId: apiKey,
-  secretKey: secretKey,
+  keyId: 'YOUR_API_KEY',
+  secretKey: 'YOUR_SECRET_KEY',
   paper: true,
-  usePolygon: false
+  usePolygon: false,
 });
 
+const websocket = alpaca.data_stream_v2;
 
-
-// Initialize an empty array to store tick data.
-let tickData = [];
-
-// Connect to the Alpaca data stream.
-
-
-const client = alpaca.websocket;
-client.onConnect(() => {
-  client.subscribe([‘AM.SPY’]);
-  setTimeout(() => client.disconnect(), 6000*1000);
+websocket.onConnect(() => {
+  websocket.subscribeForCryptoTrades(['BTCUSD']);
 });
-
 
 websocket.onStateChange((status) => {
   console.log('Status:', status);
@@ -41,9 +38,10 @@ websocket.onError((err) => {
   console.log('Error:', err);
 });
 
+websocket.onCryptoTrades((trades) => {
+  console.log('Trades:', trades);
+  // Save the trades data to a JSON file here
+  fs.writeFileSync('trades.json', JSON.stringify(trades, null, 2));
+});
 
 websocket.connect();
-
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
